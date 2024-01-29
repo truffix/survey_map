@@ -31,9 +31,9 @@ def get_data_from_table(db_path, name_table):
         data.loc[data['координаты_участка_y'].isna(), 'координаты_участка_y'] = data.loc[data['координаты_участка_y'].isna(), 'кадастровый_номер'].apply(get_center_from_ppk[0])
 
     return data
-
-print(list(get_data_from_table('db/survey_db.db','survey')))
-print(get_data_from_table('db/survey_db.db','survey')['Иконка'].unique())
+#
+# print(list(get_data_from_table('db/survey_db.db','survey')))
+# print(get_data_from_table('db/survey_db.db','survey')['Иконка'].unique())
 
 
 def render_map(df):
@@ -81,7 +81,7 @@ def render_map(df):
 
     m.save('statics/map.html')
 
-render_map(get_data_from_table('db/survey_db.db','survey'))
+# render_map(get_data_from_table('db/survey_db.db','survey'))
 
 
 
