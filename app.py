@@ -3,6 +3,9 @@ from datetime import datetime
 from bitrix_to_db import fetch_selected_tasks, update_db, get_last_tasks, make_backup_db
 from webhook import webhook_out, webhook_in
 from get_data import render_map, get_data_from_table
+import schedule
+import time
+import threading
 
 
 db_path, table_name = 'db/survey_db.db', 'survey'
@@ -12,6 +15,16 @@ def any_saver(data):
     with open('log_out_webhook.txt', 'a') as f:
         f.write(f"{datetime.now()} {str(data)}\r")
 
+def scheduled_backup(db_path, backup_db):
+    schedule.every().day.at("00:00").do(make_backup_db, db_path, backup_db)
+
+def scheduled_get_last_tasks(db_path, table_name, webhook_out):
+    schedule.every().hour.do(get_last_tasks, db_path, table_name, webhook_out)
+
+def run_scheduled_jobs():
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
 
 app = Flask(__name__, template_folder='templates')
 
@@ -33,9 +46,15 @@ def outwebhook():
         update_db(db_path, table_name, fetch_selected_tasks(webhook_out))
         render_map(get_data_from_table(db_path, table_name))
     else:
-        pass
+        print ('ssss')
     return "WORK"
 
 
 if __name__ == "__main__":
+    threading.Thread(target=run_scheduled_jobs).start()
+
+    scheduled_backup(db_path, backup_db)
+    scheduled_get_last_tasks(db_path, table_name, webhook_out)
+
     app.run(debug=True)
+
